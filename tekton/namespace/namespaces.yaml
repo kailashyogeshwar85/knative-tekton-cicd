@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+# name: cli-deployment
+  name: github-deployment
+  labels:
+     name: development
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+   # name: connector-serving
+   name: github-knative-faas
+   labels:
+      name: development

@@ -1,0 +1,13 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: connectordeploy-pipeline-binding
+  namespace: github-deployment
+spec:
+  params:
+    - name: revision
+      value: master
+    - name: repoUrl
+      value: $(body.repository.url)
+    - name: repoName
+      value: $(body.repository.name)

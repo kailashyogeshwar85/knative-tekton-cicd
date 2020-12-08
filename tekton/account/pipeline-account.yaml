@@ -1,0 +1,45 @@
+# This Account will be used for creating PiplineResource and invoking Pipeline
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitdeploy-pipeline-account
+  namespace: github-deployment
+secrets:
+- name: gcr-secret
+- name: tekton-storage
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitdeploy-kube-api-secret
+  namespace: github-deployment
+  annotations:
+    kubernetes.io/service-account.name: pipeline-account
+type: kubernetes.io/service-account-token
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: gitdeploy-pipeline-role
+  namespace: github-deployment
+rules:
+- apiGroups: ["serving.knative.dev"]
+  resources: ["services"]
+  verbs: ["get", "create", "update", "patch"]
+
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gitdeploy-pipeline-role-binding
+  namespace: github-deployment
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pipeline-role
+subjects:
+- kind: ServiceAccount
+  name: pipeline-account

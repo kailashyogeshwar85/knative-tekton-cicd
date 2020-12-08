@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+imagePullSecrets:
+  - name: gcr-secret-pull-image
+metadata:
+  name: knative-gcr-imagepull
+  namespace: github-knative-faas

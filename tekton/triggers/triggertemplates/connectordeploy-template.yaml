@@ -1,0 +1,33 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: githubdeploy-template
+  namespace: github-deployment
+spec:
+  resourceTemplates:
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      generateName: githubdeploy-pipeline-run-
+    spec:
+      pipelineRef:
+        name: githubdeploy-pipeline
+      params:
+      - name: buildContext
+        value: "."
+      - name: pathToYamlFile
+        value: "service.yaml"
+      - name: imageUrl
+        value: asia.gcr.io/knativelocal/nodeapp
+      - name: imageTag
+        value: latest
+      serviceAccountName: knativeapp-pipeline-sa
+      resources:
+        - name: git-source
+          resourceSpec:
+            type: git
+            params:
+              - name: revision
+                value: $(tt.params.revision)
+              - name: url
+                value: $(tt.params.repoUrl)

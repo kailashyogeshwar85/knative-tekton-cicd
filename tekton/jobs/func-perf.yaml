@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: faas-perf
+spec:
+  template:
+    # This is the pod template
+    spec:
+      containers:
+      - name: function-perf
+        image: williamyeh/hey
+        env:
+          - name: SERVICE_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: payload-config
+                key: host
+          - name: NOREQ
+            valueFrom:
+              configMapKeyRef:
+                name: payload-config
+                key: numOfRequest
+          - name: CONCURRENCY
+            valueFrom:
+              configMapKeyRef:
+                name: payload-config
+                key: concurrency
+          - name: SERVICE_URL
+            valueFrom:
+              configMapKeyRef:
+                name: payload-config
+                key: url
+          - name: PAYLOAD
+            valueFrom:
+              configMapKeyRef:
+                name: payload-config
+                key: payload
+        args:
+          - "-n"
+          - "$(NOREQ)"
+          - "-c"
+          - "$(CONCURRENCY)"
+          - "-m"
+          - "POST"
+          - "-host"
+          - "$(SERVICE_HOST)"
+          - -H
+          - "Content-Type:application/json"
+          - "-d"
+          - "$(PAYLOAD)"
+          - "$(SERVICE_URL)"
+      restartPolicy: OnFailure

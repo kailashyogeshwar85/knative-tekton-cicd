@@ -1,0 +1,43 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: source-to-image
+  namespace: github-deployment
+spec:
+  params:
+  - name: pathToDockerfile
+    description: The path to Dockerfile to build
+    default: git-source/Dockerfile
+  - name: dockerImageUrl
+    description: Docker image url
+    default: 'asia.gcr.io/knativelocal/nodeapp:latest'
+  - name: buildContext
+    description: Build Context to used by kaniko.
+    default: dir://git-source
+  - name: pathToServiceYAML
+    description: Config for Service Definition
+    default: dir://git-source/service.yml
+  resources:
+    inputs:
+      - name: git-source
+        type: git
+    outputs:
+      - name: builtImage
+        type: image
+  steps:
+    - name: build
+      image: asia.gcr.io/knativelocal/nodeapp:latest
+      env:
+        - name: "DOCKER_CONFIG"
+          value: "/builder/home/.docker/"
+      command:
+      - /kaniko/executor
+      args:
+      - --dockerfile=$(params.pathToDockerFile)
+      - --context=$(inputs.params.buildContext)
+      - --destination=$(params.dockerImageUrl)
+      securityContext:
+        runAsUser: 0
+      volumeMounts:
+      - name: gcr-secret
+        mountPath: /secret

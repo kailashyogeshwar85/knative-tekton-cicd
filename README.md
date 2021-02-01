@@ -51,18 +51,22 @@ Steps
 - Create TriggerBinding to map body.properties to params.
 - Create TriggerTemplate to pass the binded params to pipeline as input params.
 - Create PipelineResource & Define Pipeline
-- Create Task and add steps to it
+- Create Task and add steps to it.
 - Reference task from Pipeline and pass the required params as input to the task.
 - Process the params and build the image and push it to registry.
 - Two ways to create service:
   - Create Task for Service creation
   - Send Acknowledgement to calling service which will use helm for installing service (params = imageUrl@digest)
 
+### Deploy service
+``` bash
+ kc apply -f https://raw.githubusercontent.com/kailashyogeshwar85/knative-nodeapp/master/service.yaml
+```
 ### LESSONS LEARNT:
   While writing article I had tested on older knative version which had different rules for specifying `triggertemplate` & `triggerbinding` using name.
   Now it is referenced using `ref` directive.
 
-# DEBUGGING
+### DEBUGGING
 - Add sleep TIME_IN_SEC step to inspect step
 - kc  exec -it github-deploy-pipeline-run-fj6nc-build-source-9hqg4-pod-l2fsc --container step-inspect -n github-deployment -- /bin/bash
 ## Testing Auto Scaling

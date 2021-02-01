@@ -3,5 +3,5 @@ kind: ServiceAccount
 imagePullSecrets:
   - name: gcr-secret-pull-image
 metadata:
-  name: knative-gcr-imagepull
-  namespace: github-knative-faas
+  name: knative-gcr-imagepull-sa
+  namespace: github-app-faas

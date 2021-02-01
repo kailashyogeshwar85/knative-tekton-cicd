@@ -1,14 +1,14 @@
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-   name: connector-interceptor
+   name: github-interceptor
    namespace: github-deployment
 spec:
    serviceType: LoadBalancer
    serviceAccountName: tekton-triggers-connector-sa
    triggers:
-    - name: connectordeploy-trigger
+    - name: github-deploy-trigger
       bindings:
-        - name: connectordeploy-pipeline-binding
+        - ref: github-deploy-trigger-binding
       template:
-        name: connectordeploy-pipeline-template
+        ref: github-deploy-trigger-template

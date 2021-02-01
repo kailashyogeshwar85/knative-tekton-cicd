@@ -1,9 +1,9 @@
-# Role required for triggerbinding and eventlistenr to mutate configmap
-#Permission for every EventListener deployment to function
+# Role required for triggerbinding and eventlistener to mutate configmap
+# Permission for every EventListener deployment to function
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: tekton-trigger-connectordeploy-role
+  name: tekton-trigger-github-deploy-role
   namespace: github-deployment
 rules:
 - apiGroups:
@@ -13,8 +13,11 @@ rules:
     - triggerbindings
     - triggertemplates
     - pipelineresources
+    - triggers
   verbs:
     - get
+    - list
+    - watch
 - apiGroups:
     - ""
   resources:
@@ -30,6 +33,7 @@ rules:
   resources:
     - pipelineruns
     - pipelineresources
+    - taskruns
   verbs:
     - create
 - apiGroups:
@@ -42,3 +46,17 @@ rules:
     - watch
     - create
     - patch
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tekton-trigger-github-deploy-role
+  labels:
+    app.kubernetes.io/instance: default
+    app.kubernetes.io/part-of: tekton-triggers
+rules:
+  # Permissions for every EventListener deployment to function
+  - apiGroups: ["triggers.tekton.dev"]
+    resources: ["clustertriggerbindings"]
+    verbs: ["get", "list", "watch"]

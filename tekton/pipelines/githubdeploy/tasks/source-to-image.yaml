@@ -5,36 +5,64 @@ metadata:
   namespace: github-deployment
 spec:
   params:
-  - name: pathToDockerfile
-    description: The path to Dockerfile to build
-    default: git-source/Dockerfile
-  - name: dockerImageUrl
-    description: Docker image url
-    default: 'asia.gcr.io/knativelocal/nodeapp:latest'
-  - name: buildContext
-    description: Build Context to used by kaniko.
-    default: dir://git-source
-  - name: pathToServiceYAML
-    description: Config for Service Definition
-    default: dir://git-source/service.yml
+    - name: pathToDockerfile
+      description: The path to Dockerfile to build
+      type: string
+    - name: dockerImageUrl
+      description: Docker image url
+      type: string
+      default: asia.gcr.io/knativelocal/nodeapp:latest
+    - name: buildContext
+      description: Build Context to used by kaniko.
+      type: string
+      default: ./
+    - name: pathToServiceYAML
+      description: Config for Service Definition
+      type: string
+      default: dir://git-source/service.yml
   resources:
     inputs:
       - name: git-source
         type: git
-    outputs:
-      - name: builtImage
-        type: image
+    # As we don't have to send the image url in response
+  volumes:
+    - name: gcr-secret
+      secret:
+        secretName: gcr-secret-push
+        items:
+          - key: .dockerconfigjson
+            path: gcr-push-secret.json
   steps:
-    - name: build
-      image: asia.gcr.io/knativelocal/nodeapp:latest
+    - name: inspect
+      image: bash:latest
       env:
+      - name: GIT_SOURCE
+        value: $(resources.inputs.git-source.path)
+      - name: DOCKERFILE
+        value: $(params.pathToDockerfile)
+      - name: DOCKER_IMAGE
+        value: $(params.dockerImageUrl)
+      script: |
+        #!/usr/bin/env bash
+        apk add tree
+        tree /workspace -L 2
+      volumeMounts:
+      - name: gcr-secret
+        mountPath: /secret
+    - name: build-and-push
+      workingDir: $(resources.inputs.git-source.path)
+      image: gcr.io/kaniko-project/executor:debug
+      env:
+      # Most Important
         - name: "DOCKER_CONFIG"
-          value: "/builder/home/.docker/"
+          value: "/tekton/home/.docker/"
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /secret/gcr-push-secret.json
       command:
       - /kaniko/executor
       args:
-      - --dockerfile=$(params.pathToDockerFile)
-      - --context=$(inputs.params.buildContext)
+      - --dockerfile=$(params.pathToDockerfile)
+      - --context=$(params.buildContext)
       - --destination=$(params.dockerImageUrl)
       securityContext:
         runAsUser: 0

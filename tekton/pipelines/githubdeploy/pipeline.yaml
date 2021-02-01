@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: github-pipeline
+  name: github-deploy-pipeline
   namespace: github-deployment
 spec:
   resources:
@@ -10,11 +10,9 @@ spec:
   params:
   - name: buildContext
     description: Path that will be used by kaniko for building
-    default: .
+    default: './'
   - name: pathToYamlFile
     default: dir://$(git-source.path)/service.yaml
-  - name: pathToDockerfile
-    default: Dockerfile
   - name: imageUrl
     default: asia.gcr.io/knativelocal/nodeapp
   - name: imageTag
@@ -22,16 +20,12 @@ spec:
   tasks:
   - name: build-source
     taskRef:
-      name: source-to-source
+      name: source-to-image
     params:
     - name: buildContext
       value: "$(params.buildContext)"
     - name: pathToDockerfile
-      value: "$(resources.git-source.path)/Dockerfile"
-    - name: imageUrl
-      value: "$(params.imageUrl)"
-    - name: imageTag
-      value: "$(params.imageTag)"
+      value: "$(resources.inputs.git-source.path)/Dockerfile"
     resources:
       inputs:
         - name: git-source
@@ -41,23 +35,7 @@ spec:
       name: deploy-service
     runAfter:
       - build-source
-    params:
-    - name: buildContext
-      value: "$(params.buildContext)"
-    - name: pathToDockerfile
-      value: "$(resources.git-source.path)/Dockerfile"
-    - name: imageUrl
-      value: "$(params.imageUrl)"
-    - name: imageTag
-      value: "$(params.imageTag)"
     resources:
       inputs:
         - name: git-source
           resource: git-source
-  - name: helm-install
-      image: lachlanevenson/k8s-kubectl
-      command: ["kubectl"]
-      args:
-        - "apply"
-        - "-f"
-        - "$(resources.git-source.path)/$(params.buildContext)/$(params.pathToYamlFile)"

@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-service
+  namespace: github-deployment
+spec:
+  params:
+    - name: pathToServiceYAML
+      default: './service.yaml'
+  resources:
+    inputs:
+      - name: git-source
+        type: git
+  steps:
+    - name: kc-apply
+      workingDir: $(resources.inputs.git-source.path)
+      image: lachlanevenson/k8s-kubectl
+      command: [kubectl]
+      args:
+        - "apply"
+        - "-f"
+        - "$(params.pathToServiceYAML)"

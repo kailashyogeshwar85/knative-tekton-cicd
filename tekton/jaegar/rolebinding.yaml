@@ -1,8 +1,8 @@
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: jaeger-operator-in-connector-serving
-  namespace: connector-serving
+  name: jaeger-operator-in-github-app-faas
+  namespace: github-app-faas
 subjects:
 - kind: ServiceAccount
   name: jaeger-operator

@@ -1,27 +1,26 @@
+# Values are provided from binding defined in triggerbinding else default value is used.
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
-  name: githubdeploy-template
+  name: github-deploy-trigger-template
   namespace: github-deployment
 spec:
+  params:
+  - name: revision
+    description: Branch of Repository
+    default: master
+  - name: repoUrl
+    description: Repository URL
+    default: https://github.com/norepositotyfound.git
   resourceTemplates:
   - apiVersion: tekton.dev/v1beta1
     kind: PipelineRun
     metadata:
-      generateName: githubdeploy-pipeline-run-
+      generateName: github-deploy-pipeline-run-
     spec:
       pipelineRef:
-        name: githubdeploy-pipeline
-      params:
-      - name: buildContext
-        value: "."
-      - name: pathToYamlFile
-        value: "service.yaml"
-      - name: imageUrl
-        value: asia.gcr.io/knativelocal/nodeapp
-      - name: imageTag
-        value: latest
-      serviceAccountName: knativeapp-pipeline-sa
+        name: github-deploy-pipeline
+      serviceAccountName: github-deploy-pipeline-sa
       resources:
         - name: git-source
           resourceSpec:

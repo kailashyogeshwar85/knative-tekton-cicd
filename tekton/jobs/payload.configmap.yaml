@@ -3,8 +3,8 @@ kind: ConfigMap
 metadata:
   name: payload-config
 data:
-  numOfRequest: "10000000"
-  concurrency: "1000"
+  numOfRequest: "100"
+  concurrency: "10"
   payload: '{"Payload":"{\"type\":\"action\",\"version\":\"v1\",\"func\":\"print\",\"input\":{\"log\":\"Hello I am Logger\"}}"}'
-  host: SERVICE_NAME.connector-serving.svc.cluster.local
-  url: "http://SERVICE_NAME.connector-serving.svc.cluster.local"
+  host: github-nodeapp.github-app-faas.svc.cluster.local
+  url: "http://github-nodeapp.github-app-faas.svc.cluster.local"

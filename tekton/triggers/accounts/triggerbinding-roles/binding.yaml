@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-    name: tekton-connectordeploy-binding
+    name: tekton-github-deploy-binding
     namespace: github-deployment
 subjects:
 - kind: ServiceAccount
@@ -9,4 +9,20 @@ subjects:
 roleRef:
     apiGroup: rbac.authorization.k8s.io
     kind: Role
-    name: tekton-trigger-connectordeploy-role
+    name: tekton-trigger-github-deploy-role
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tekton-triggers-github-cluster-binding
+  namespace: github-deployment
+subjects:
+  - kind: ServiceAccount
+    name: tekton-triggers-connector-sa
+    namespace: github-deployment
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tekton-trigger-github-deploy-role
+

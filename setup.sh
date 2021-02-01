@@ -53,20 +53,34 @@ kubectl create secret docker-registry gcr-secret-pull-image \
 kubectl --namespace=github-app-faas patch serviceaccount default \
           -p '{"imagePullSecrets": [{"name": "gcr-secret-pull-image"}]}'
 # apply resources
-echo "APPLYING TRIGGER CRDs"
+
+echo "==================================="
+echo "      APPLYING TRIGGER CRDs        "
+echo "==================================="
 kubectl apply -R -f ./tekton/triggers
 
-echo "APPLYING SA"
+
+echo "==================================="
+echo "      APPLYING SA                  "
+echo "==================================="
 kubectl apply -f ./tekton/account
 
-echo "APPLYING PIPELINE"
+echo "==================================="
+echo "      APPLYING PIPELINE            "
+echo "==================================="
+
 kubectl apply -R -f ./tekton/pipelines
 
 # Port Forward your event listener will be listening on port 8000
 # kubectl port-forward $(kubectl get pod -o=name -n github-deployment) -n github-deployment 8080:8000
-echo "Expost Event Listener with below command
-      kubectl port-forward $(kubectl get pod -o=name -n github-deployment) -n github-deployment 8080:8000
-    "
+# Forwarding request from 8080 -> 8000 of cluster
+echo ""
+echo "EXPOSE WBHOOK URL using below command"
+echo "kubectl port-forward \$(kubectl get pod -o=name -n github-deployment) -n github-deployment 8080:8000"
+
+echo "=================================="
+echo ""
+echo ""
 
 echo "Execute kubectl proxy & Open your browser at
   http://localhost:8001/api/v1/namespaces/tekton-pipelines/services/tekton-dashboard:http/proxy/

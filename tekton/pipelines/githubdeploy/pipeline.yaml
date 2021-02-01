@@ -30,12 +30,3 @@ spec:
       inputs:
         - name: git-source
           resource: git-source
-  - name: deploy-service
-    taskRef:
-      name: deploy-service
-    runAfter:
-      - build-source
-    resources:
-      inputs:
-        - name: git-source
-          resource: git-source
